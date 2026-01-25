@@ -1,1 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
 
+<div class="container-fluid py-5 position-relative overflow-hidden" style="background: #0d0d0d; color: white; min-vh-100;">
+    
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" 
+         style="background: radial-gradient(circle at 20% 30%, #FF9933 0%, transparent 50%), 
+                     radial-gradient(circle at 80% 70%, #138808 0%, transparent 50%);">
+    </div>
+
+    <div class="container position-relative z-index-2">
+        <div class="row align-items-center g-5">
+            
+            <div class="col-lg-6" data-aos="fade-right">
+                <h6 class="fw-bold mb-3 ls-2" style="color: #FF9933; text-transform: uppercase;">Strategic Collaboration</h6>
+                <h1 class="display-3 fw-bold mb-4" style="letter-spacing: -2px;">
+                    Architecting the <br>
+                    <span style="color: #FF9933;">Digital Future</span><span> of India</span>
+                </h1>
+                <p class="fs-5 text-secondary mb-5" style="line-height: 1.6;">
+                    Join an elite ecosystem where heritage inspires high-tech innovation. Partner with Nexgen's core engineering team to deploy world-class solutions on the national digital frontier.
+                </p>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 12px; height: 12px; background: #FF9933; border-radius: 50%; box-shadow: 0 0 10px #FF9933;"></div>
+                        <span class="small fw-bold opacity-75">Saffron Protocol: Visionary Strategy & Resilience</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; box-shadow: 0 0 10px #ffffff;"></div>
+                        <span class="small fw-bold opacity-75">White Protocol: Integrity & Absolute Transparency</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 12px; height: 12px; background: #138808; border-radius: 50%; box-shadow: 0 0 10px #138808;"></div>
+                        <span class="small fw-bold opacity-75">Green Protocol: Sustainable Growth & Innovation</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="card p-4 p-md-5 rounded-5 glass-card tiranga-border shadow-lg">
+                    <div class="text-center mb-4">
+                        <h3 class="text-white fw-bold">Project <span style="color: #FF9933;">Inquiry</span></h3>
+                        <p class="small text-secondary">Submit your credentials to establish a secure connection</p>
+                    </div>
+
+                    <form action="/submit-inquiry" method="POST" id="collabForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small fw-bold mb-2 ms-2" style="color: #FF9933;">LEAD IDENTIFIER</label>
+                                <input type="text" name="name" class="form-control custom-input" placeholder="Your Full Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold mb-2 ms-2" style="color: #FF9933;">EMAIL ADDRESS</label>
+                                <input type="email" name="email" class="form-control custom-input" placeholder="official@domain.com" required>
+                            </div>
+                           <div class="col-12">
+    <label class="small fw-bold mb-2 ms-2" style="color: #ffffff;">SELECT PROJECT MISSION</label>
+    <select name="domain" class="form-select custom-input select-style" required>
+        <option value="" disabled selected style="color: rgba(255,255,255,0.5);">-- Select a Mission --</option>
+        <option value="AI Photo Finder">AI Photo Finder</option>
+        <option value="Digital NFC Card">Digital NFC Card</option>
+        <option value="Scan & Go Billing">Scan & Go Billing</option>
+        <option value="Smart Voucher Automation">Smart Voucher Automation</option>
+        <option value="Task Management System">Task Management System</option>
+        <option value="Vehicle Help Service">Vehicle Help Service</option>
+        <option value="Crowd Counting System">Crowd Counting System</option>
+        <option value="EventSync 360">EventSync 360</option>
+        <option value="Token Management System">Token Management System</option>
+        <option value="GoBilling Smart Pro">GoBilling Smart Pro</option>
+        <option value="Other / Custom Mission">Other / Custom Mission</option>
+    </select>
+</div>
+                            <div class="col-12">
+                                <label class="small fw-bold mb-2 ms-2" style="color: #138808;">MISSION OBJECTIVES</label>
+                                <textarea name="message" class="form-control custom-input" rows="4" placeholder="Briefly describe your requirements or project goals..." required></textarea>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-tiranga w-100 py-3 rounded-pill fw-bold">
+                                    INITIATE DEPLOYMENT
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    Swal.fire({
+                        title: 'MISSION DEPLOYED',
+                        text: '{{ message }}',
+                        icon: 'success',
+                        background: '#0d0d0d',
+                        color: '#ffffff',
+                        confirmButtonColor: '#138808',
+                        iconColor: '#FF9933'
+                    });
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    });
+</script>
+
+<style>
+    .ls-2 { letter-spacing: 2px; }
+    .glass-card { 
+        background: rgba(255, 255, 255, 0.03) !important; 
+        backdrop-filter: blur(25px); 
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .tiranga-border {
+        border-top: 4px solid #FF9933 !important;
+        border-bottom: 4px solid #138808 !important;
+    }
+    .custom-input { 
+        background: rgba(255, 255, 255, 0.05) !important; 
+        border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+        color: white !important; 
+        border-radius: 12px !important; 
+        padding: 12px !important;
+    }
+    .custom-input:focus { 
+        border-color: #FF9933 !important; 
+        box-shadow: 0 0 15px rgba(255, 153, 51, 0.2) !important; 
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+    .btn-tiranga {
+        background: linear-gradient(90deg, #FF9933, #ffffff, #138808);
+        background-size: 200% auto;
+        color: #000 !important;
+        border: none;
+        transition: 0.5s;
+    }
+    .btn-tiranga:hover {
+        background-position: right center;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(19, 136, 8, 0.3);
+    }
+    .select-style {
+        cursor: pointer;
+        appearance: none; /* ડિફોલ્ટ એરો હટાવવા */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23FF9933' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1rem center !important;
+        background-size: 16px 12px !important;
+    }
+
+    /* જ્યારે ડ્રોપડાઉન લિસ્ટ ખુલે ત્યારે અંદરના ઓપ્શન્સ દેખાય તે માટે */
+    .select-style option {
+        background-color: #1a1a1a !important; /* ડાર્ક બેકગ્રાઉન્ડ */
+        color: #ffffff !important; /* સફેદ અક્ષરો */
+        padding: 15px;
+    }
+
+    /* iOS/Chrome માટે વધારાનું ફિક્સ */
+    select.custom-input {
+        color: white !importa
+    }
+</style>
+
+{% endblock %}
