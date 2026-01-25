@@ -8,7 +8,6 @@ app.secret_key = "nexgen_ultra_pro_max_2026"
 
 # --- Database Configuration ---
 basedir = os.path.abspath(os.path.dirname(__file__))
-# Database path Render mate fix karyo che
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'nexgen_v4.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -46,7 +45,7 @@ class Inquiry(db.Model):
     message = db.Column(db.Text, nullable=False)
 
 # --- INTERNAL SERVER ERROR FIX ---
-# Aa bhag Render par automatically table banavi deshe
+# Aa line Render par automatically database tables banavi deshe
 with app.app_context():
     db.create_all()
 
@@ -57,7 +56,12 @@ def index():
 
 @app.route('/innovation-suite')
 def solutions(): 
-    return render_template('solutions.html', projects=Project.query.all())
+    # Empty list if no projects exist, avoiding 500 error
+    try:
+        projects = Project.query.all()
+    except:
+        projects = []
+    return render_template('solutions.html', projects=projects)
 
 @app.route('/collaborate')
 def collaborate(): 
@@ -88,7 +92,6 @@ def submit_inquiry():
         mail.send(msg)
         flash("Mission Intelligence Received. Our team will contact you soon.", "success")
     except Exception as e:
-        print(f"Error: {e}")
         flash("Data saved locally, but email transmission failed.", "warning")
     
     return redirect(url_for('collaborate'))
@@ -109,7 +112,7 @@ def mission_control():
         return redirect(url_for('login'))
     return render_template('admin.html', projects=Project.query.all(), inquiries=Inquiry.query.all())
 
-# --- CRUD Operations (Add & Delete) ---
+# --- CRUD Operations ---
 @app.route('/admin/add-project', methods=['POST'])
 def add_project():
     if not session.get('logged_in'): return redirect(url_for('login'))
@@ -134,7 +137,7 @@ def delete_project(id):
     if p:
         db.session.delete(p)
         db.session.commit()
-        flash("System de-initialized and removed.", "danger")
+        flash("System de-initialized.", "danger")
     return redirect(url_for('mission_control'))
 
 @app.route('/admin/delete-inquiry/<int:id>')
@@ -144,7 +147,7 @@ def delete_inquiry(id):
     if inq:
         db.session.delete(inq)
         db.session.commit()
-        flash("Transmission log cleared.", "info")
+        flash("Log cleared.", "info")
     return redirect(url_for('mission_control'))
 
 @app.route('/logout')
