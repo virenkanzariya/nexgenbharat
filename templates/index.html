@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom Theme Colors & Utilities */
+    :root {
+        --saffron-bright: #FF9933;
+        --india-green-deep: #138808;
+        --ashoka-blue-dark: #000080;
+    }
+
+    .text-saffron { color: var(--saffron-bright); }
+    .text-green { color: var(--india-green-deep); }
+    .text-blue { color: var(--ashoka-blue-dark); }
+    
+    .btn-saffron { 
+        background: linear-gradient(45deg, var(--saffron-bright), #ffb366);
+        color: white; 
+        border-radius: 50px;
+        font-weight: 700;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+    }
+
+    .btn-saffron:hover { 
+        color: white; 
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(255, 153, 51, 0.3);
+    }
+
+    .hero-section {
+        background: radial-gradient(circle at top right, rgba(255, 153, 51, 0.05), transparent),
+                    radial-gradient(circle at bottom left, rgba(19, 136, 8, 0.05), transparent);
+    }
+
+    .feature-card {
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+    }
+
+    .icon-box {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+    }
+
+    .stat-text {
+        letter-spacing: 2px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<section class="hero-section py-5 min-vh-80 d-flex align-items-center">
+    <div class="container py-5 text-center">
+        <div data-aos="fade-down" data-aos-duration="1200">
+            <h6 class="text-green fw-bold text-uppercase stat-text mb-3">
+                <i class="bi bi-award-fill me-2"></i>Empowering Next-Gen Innovators
+            </h6>
+        </div>
+        
+        <h1 class="display-2 fw-extrabold text-blue mb-4" data-aos="zoom-in" data-aos-delay="200">
+            Knowledge is power only when <br>
+            <span class="text-saffron">Applied to Reality.</span>
+        </h1>
+        
+        <p class="lead text-muted mb-5 mx-auto px-3" style="max-width: 850px; line-height: 1.8;" data-aos="fade-up" data-aos-delay="400">
+            Theoretical learning is just the foundation. At <strong>Nexgen Bharat</strong>, we bridge the gap between academic potential and industrial excellence by tackling real-world challenges with disruptive digital solutions.
+        </p>
+        
+        <div class="d-flex justify-content-center gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="600">
+            <a href="/innovation-suite" class="btn btn-saffron btn-lg px-5 py-3 shadow">
+                Explore Innovations <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="/collaborate" class="btn btn-outline-dark btn-lg px-5 py-3 rounded-pill fw-bold">
+                Partner With Us
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 mb-5">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-5 bg-white shadow-sm rounded-4 border-bottom border-saffron border-5 feature-card">
+                    <span class="icon-box">🎯</span>
+                    <h4 class="fw-bold text-dark mb-3">The Gap</h4>
+                    <p class="text-muted mb-0">
+                        Traditional education focuses on "what" to learn. We address the "how" by solving the critical question: <em>How do I apply this to the real market?</em>
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="p-5 bg-white shadow-sm rounded-4 border-bottom border-blue border-5 feature-card">
+                    <span class="icon-box">🛠️</span>
+                    <h4 class="fw-bold text-dark mb-3">Our Mission</h4>
+                    <p class="text-muted mb-0">
+                        We develop production-grade applications and systems, transforming raw talent into industry-ready experts through hands-on technical execution.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                <div class="p-5 bg-white shadow-sm rounded-4 border-bottom border-green border-5 feature-card">
+                    <span class="icon-box">📈</span>
+                    <h4 class="fw-bold text-dark mb-3">Impactful Growth</h4>
+                    <p class="text-muted mb-0">
+                        This is not a shortcut; it is a journey of value creation. We foster organic growth that leads to sustainable professional and economic success.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white shadow-sm mx-3 rounded-5" data-aos="zoom-in">
+    <div class="container text-center py-4">
+        <h2 class="fw-bold text-blue mb-3">Ready to Build the Future of Bharat?</h2>
+        <p class="text-muted mb-4">Join our collaborative ecosystem and turn your skills into solutions.</p>
+        <a href="/collaborate" class="btn btn-dark btn-lg px-5 rounded-pill">Start Collaborating</a>
+    </div>
+</section>
+
+{% endblock %}
