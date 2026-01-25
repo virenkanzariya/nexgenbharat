@@ -1,8 +1,7 @@
 import os
-import smtplib # Extra safety mate
+import requests
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.secret_key = "nexgen_ultra_pro_max_2026"
@@ -13,16 +12,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ne
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- Email Configuration (Render Fix) ---
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465 # Port 587 badle 465 vadhu stable che Render par
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USERNAME'] = 'virenkanzariya02@gmail.com'
-app.config['MAIL_PASSWORD'] = 'msxwuaazwqtsrtgr' 
-app.config['MAIL_DEFAULT_SENDER'] = 'virenkanzariya02@gmail.com'
+# --- Telegram Configuration ---
+TELEGRAM_TOKEN = '8248572404:AAE5_ZxX40rPj_Dnep9rp0fpFGpOrvgbKfs'
+TELEGRAM_CHAT_ID = '6705656451'
 
-mail = Mail(app)
+def send_telegram_alert(message):
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"Telegram Error: {e}")
 
 # --- Database Models ---
 class Project(db.Model):
@@ -46,10 +46,6 @@ class Inquiry(db.Model):
     domain = db.Column(db.String(100))
     message = db.Column(db.Text, nullable=False)
 
-# Render mate automatic table creation
-with app.app_context():
-    db.create_all()
-
 # --- Routes ---
 @app.route('/')
 def index(): 
@@ -57,11 +53,7 @@ def index():
 
 @app.route('/innovation-suite')
 def solutions(): 
-    try:
-        projects = Project.query.all()
-    except:
-        projects = []
-    return render_template('solutions.html', projects=projects)
+    return render_template('solutions.html', projects=Project.query.all())
 
 @app.route('/collaborate')
 def collaborate(): 
@@ -71,7 +63,6 @@ def collaborate():
 def philosophy(): 
     return render_template('philosophy.html')
 
-# --- FORM SUBMISSION (ERROR PROOF) ---
 @app.route('/submit-inquiry', methods=['POST'])
 def submit_inquiry():
     u_name = request.form.get('name')
@@ -79,28 +70,24 @@ def submit_inquiry():
     u_domain = request.form.get('domain')
     u_msg = request.form.get('message')
 
-    # Step 1: Pehla Database ma save karo (Aa fail nahi thay)
     try:
         new_inquiry = Inquiry(name=u_name, email=u_email, domain=u_domain, message=u_msg)
         db.session.add(new_inquiry)
         db.session.commit()
-        
-        # Step 2: Email mokalva try karo (Jo fail thay to site crash nahi thay)
-        try:
-            msg = Message(
-                subject=f"New Mission Request: {u_name}",
-                recipients=['virenkanzariya02@gmail.com'],
-                body=f"Name: {u_name}\nEmail: {u_email}\nMessage: {u_msg}"
-            )
-            mail.send(msg)
-            flash("Mission Intelligence Received! Email Sent.", "success")
-        except Exception as mail_err:
-            print(f"Email Error: {mail_err}")
-            flash("Message saved, but email notification failed. We will check it manually.", "warning")
 
-    except Exception as db_err:
-        print(f"Database Error: {db_err}")
-        flash("System failure. Please try again later.", "danger")
+        # Telegram Alert
+        alert_text = (
+            f"🚀 <b>New Mission Request!</b>\n\n"
+            f"👤 <b>Name:</b> {u_name}\n"
+            f"📧 <b>Email:</b> {u_email}\n"
+            f"🎯 <b>Project:</b> {u_domain}\n"
+            f"💬 <b>Message:</b> {u_msg}"
+        )
+        send_telegram_alert(alert_text)
+        
+        flash("Mission Intelligence Received! Telegram Alert Sent.", "success")
+    except Exception as e:
+        flash("Data saved locally, but notification failed.", "warning")
     
     return redirect(url_for('collaborate'))
 
@@ -115,14 +102,26 @@ def login():
 
 @app.route('/mission-control')
 def mission_control():
-    if not session.get('logged_in'): 
-        return redirect(url_for('login'))
+    if not session.get('logged_in'): return redirect(url_for('login'))
     return render_template('admin.html', projects=Project.query.all(), inquiries=Inquiry.query.all())
+
+@app.route('/admin/delete-project/<int:id>')
+def delete_project(id):
+    if not session.get('logged_in'): return redirect(url_for('login'))
+    p = Project.query.get(id)
+    if p:
+        db.session.delete(p)
+        db.session.commit()
+    return redirect(url_for('mission_control'))
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     return redirect(url_for('index'))
+
+# --- SERVER STARTUP (Ahi badlav karyo che) ---
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
