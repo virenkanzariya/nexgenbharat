@@ -1,4 +1,5 @@
 import os
+import smtplib # Extra safety mate
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
@@ -12,12 +13,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ne
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- Email Configuration ---
+# --- Email Configuration (Render Fix) ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_PORT'] = 465 # Port 587 badle 465 vadhu stable che Render par
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USERNAME'] = 'virenkanzariya02@gmail.com'
-app.config['MAIL_PASSWORD'] = 'msxwuaazwqtsrtgr' # Your 16-digit App Password
+app.config['MAIL_PASSWORD'] = 'msxwuaazwqtsrtgr' 
 app.config['MAIL_DEFAULT_SENDER'] = 'virenkanzariya02@gmail.com'
 
 mail = Mail(app)
@@ -44,19 +46,17 @@ class Inquiry(db.Model):
     domain = db.Column(db.String(100))
     message = db.Column(db.Text, nullable=False)
 
-# --- INTERNAL SERVER ERROR FIX ---
-# Aa line Render par automatically database tables banavi deshe
+# Render mate automatic table creation
 with app.app_context():
     db.create_all()
 
-# --- Frontend Routes ---
+# --- Routes ---
 @app.route('/')
 def index(): 
     return render_template('index.html')
 
 @app.route('/innovation-suite')
 def solutions(): 
-    # Empty list if no projects exist, avoiding 500 error
     try:
         projects = Project.query.all()
     except:
@@ -71,7 +71,7 @@ def collaborate():
 def philosophy(): 
     return render_template('philosophy.html')
 
-# --- Form Submission & Email Logic ---
+# --- FORM SUBMISSION (ERROR PROOF) ---
 @app.route('/submit-inquiry', methods=['POST'])
 def submit_inquiry():
     u_name = request.form.get('name')
@@ -79,31 +79,38 @@ def submit_inquiry():
     u_domain = request.form.get('domain')
     u_msg = request.form.get('message')
 
+    # Step 1: Pehla Database ma save karo (Aa fail nahi thay)
     try:
         new_inquiry = Inquiry(name=u_name, email=u_email, domain=u_domain, message=u_msg)
         db.session.add(new_inquiry)
         db.session.commit()
+        
+        # Step 2: Email mokalva try karo (Jo fail thay to site crash nahi thay)
+        try:
+            msg = Message(
+                subject=f"New Mission Request: {u_name}",
+                recipients=['virenkanzariya02@gmail.com'],
+                body=f"Name: {u_name}\nEmail: {u_email}\nMessage: {u_msg}"
+            )
+            mail.send(msg)
+            flash("Mission Intelligence Received! Email Sent.", "success")
+        except Exception as mail_err:
+            print(f"Email Error: {mail_err}")
+            flash("Message saved, but email notification failed. We will check it manually.", "warning")
 
-        msg = Message(
-            subject=f"New Mission Request from: {u_name}",
-            recipients=['virenkanzariya02@gmail.com'],
-            body=f"Admin Alert!\n\nName: {u_name}\nEmail: {u_email}\nDomain: {u_domain}\nMessage: {u_msg}"
-        )
-        mail.send(msg)
-        flash("Mission Intelligence Received. Our team will contact you soon.", "success")
-    except Exception as e:
-        flash("Data saved locally, but email transmission failed.", "warning")
+    except Exception as db_err:
+        print(f"Database Error: {db_err}")
+        flash("System failure. Please try again later.", "danger")
     
     return redirect(url_for('collaborate'))
 
-# --- Admin Authentication ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         if request.form['username'] == 'admin' and request.form['password'] == 'nexgen2026':
             session['logged_in'] = True
             return redirect(url_for('mission_control'))
-        flash("Invalid Credentials. Access Denied.", "danger")
+        flash("Invalid Credentials.", "danger")
     return render_template('login.html')
 
 @app.route('/mission-control')
@@ -111,44 +118,6 @@ def mission_control():
     if not session.get('logged_in'): 
         return redirect(url_for('login'))
     return render_template('admin.html', projects=Project.query.all(), inquiries=Inquiry.query.all())
-
-# --- CRUD Operations ---
-@app.route('/admin/add-project', methods=['POST'])
-def add_project():
-    if not session.get('logged_in'): return redirect(url_for('login'))
-    new_p = Project(
-        name=request.form.get('name'),
-        icon=request.form.get('icon'),
-        category=request.form.get('category'),
-        version=request.form.get('version'),
-        stack=request.form.get('stack'),
-        desc=request.form.get('desc'),
-        logic=request.form.get('logic')
-    )
-    db.session.add(new_p)
-    db.session.commit()
-    flash("New system architecture deployed successfully!", "success")
-    return redirect(url_for('mission_control'))
-
-@app.route('/admin/delete-project/<int:id>')
-def delete_project(id):
-    if not session.get('logged_in'): return redirect(url_for('login'))
-    p = Project.query.get(id)
-    if p:
-        db.session.delete(p)
-        db.session.commit()
-        flash("System de-initialized.", "danger")
-    return redirect(url_for('mission_control'))
-
-@app.route('/admin/delete-inquiry/<int:id>')
-def delete_inquiry(id):
-    if not session.get('logged_in'): return redirect(url_for('login'))
-    inq = Inquiry.query.get(id)
-    if inq:
-        db.session.delete(inq)
-        db.session.commit()
-        flash("Log cleared.", "info")
-    return redirect(url_for('mission_control'))
 
 @app.route('/logout')
 def logout():
