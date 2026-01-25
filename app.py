@@ -8,6 +8,7 @@ app.secret_key = "nexgen_ultra_pro_max_2026"
 
 # --- Database Configuration ---
 basedir = os.path.abspath(os.path.dirname(__file__))
+# Database path Render mate fix karyo che
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'nexgen_v4.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -44,6 +45,11 @@ class Inquiry(db.Model):
     domain = db.Column(db.String(100))
     message = db.Column(db.Text, nullable=False)
 
+# --- INTERNAL SERVER ERROR FIX ---
+# Aa bhag Render par automatically table banavi deshe
+with app.app_context():
+    db.create_all()
+
 # --- Frontend Routes ---
 @app.route('/')
 def index(): 
@@ -70,21 +76,14 @@ def submit_inquiry():
     u_msg = request.form.get('message')
 
     try:
-        # Save to Database
         new_inquiry = Inquiry(name=u_name, email=u_email, domain=u_domain, message=u_msg)
         db.session.add(new_inquiry)
         db.session.commit()
 
-        # Send Email Notification to Admin
         msg = Message(
             subject=f"New Mission Request from: {u_name}",
             recipients=['virenkanzariya02@gmail.com'],
-            body=f"Admin Alert!\n\nA new collaboration request has been received.\n\n"
-                 f"Name: {u_name}\n"
-                 f"Email: {u_email}\n"
-                 f"Domain: {u_domain}\n"
-                 f"Message: {u_msg}\n\n"
-                 f"Please log in to Mission Control to manage this inquiry."
+            body=f"Admin Alert!\n\nName: {u_name}\nEmail: {u_email}\nDomain: {u_domain}\nMessage: {u_msg}"
         )
         mail.send(msg)
         flash("Mission Intelligence Received. Our team will contact you soon.", "success")
@@ -154,6 +153,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
